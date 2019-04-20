@@ -228,6 +228,9 @@ int shuffle(int player, struct gameState *state) {
   return 0;
 }
 
+
+//Liz asks a QUESTION: why does playCard return anything? The int code isn't used in playdom.c so...?
+//...shouldn't playdom.c be error checking the status of playCard? If playCard fails, it should also fail... yes?
 int playCard(int handPos, int choice1, int choice2, int choice3, struct gameState *state) 
 {	
   int card;
@@ -643,6 +646,24 @@ int getCost(int cardNumber)
   return -1;
 }
 
+//!!!!!!!!!!!!!!!! COMPILE THIS ON FLIP AND ATTEMPT RUN !!!!!!!!!!!!!!!!!!!
+//REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: smithy)
+//(Bugs added in ASSIGNMENT 2; see assigment 2 documentation)
+int smithyEffect(int currentPlayer, int handPos, struct gameState* state)
+{
+	//+3 Card
+	int i;
+	for (i = 1; i < 3; i++)
+	{
+		drawCard(currentPlayer, state);
+	}
+
+	//discard card from hand
+	discardCard(handPos, currentPlayer, state, 0);
+
+	return 0;
+}
+
 int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus)
 {
   int i;
@@ -829,16 +850,16 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       return 0;
 		
     case smithy:
-      //+3 Cards
-      for (i = 0; i < 3; i++)
-	{
-	  drawCard(currentPlayer, state);
-	}
-			
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-      return 0;
-		
+		//refactored: call smithyEffect(int currentPlayer, int handPos, struct gameState* state)
+		if (smithyEffect(currentPlayer, handPos, state) < 0)
+		{
+			return -1;
+		}
+		else
+		{
+			return 0;
+		}
+	
     case village:
       //+1 Card
       drawCard(currentPlayer, state);
