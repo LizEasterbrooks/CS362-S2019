@@ -648,7 +648,7 @@ int getCost(int cardNumber)
 
 //!!!!!!!!!!!!!!!! this compiles and runs in playdom !!!!!!!!!!!!!!!!!!!
 //REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: smithy)
-//(Bug added in ASSIGNMENT 2; see assigment 2 documentation)
+//(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
 int smithyEffect(int currentPlayer, int handPos, struct gameState* state)
 {
 	//+3 Card
@@ -664,8 +664,9 @@ int smithyEffect(int currentPlayer, int handPos, struct gameState* state)
 	return 0;
 }
 
-//REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: smithy)
-//(Bug added in ASSIGNMENT 2; see assigment 2 documentation)
+//!!!!!!!!!!!!!!!! this compiles and runs in playdom !!!!!!!!!!!!!!!!!!!
+//REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: adventurer)
+//(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
 int adventurerEffect(int currentPlayer, int handPos, struct gameState* state)
 {
 	//(refactor: declare (int)cardDrawn, (int) drawnTreasure, (int) temphand[MAX_HAND], (int) z [for temp hand] in this context)
@@ -694,6 +695,23 @@ int adventurerEffect(int currentPlayer, int handPos, struct gameState* state)
 	}
 	return 0;
 }
+
+//REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: village)
+//(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
+int villageEffect(int currentPlayer, int handPos, struct gameState* state)
+{
+	//+1 Card
+	drawCard(currentPlayer, state);
+
+	//+2 Actions
+	state->numActions = state->numActions + 2;
+
+	//discard played card from hand
+	discardCard(handPos, currentPlayer, state, 0);
+	return 0;
+}
+
+
 
 int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus)
 {
@@ -883,14 +901,15 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 	
     case village:
       //+1 Card
-      drawCard(currentPlayer, state);
-			
-      //+2 Actions
-      state->numActions = state->numActions + 2;
-			
-      //discard played card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-      return 0;
+	  //refactored: call villageEffect(int currentPlayer, int handPos, struct gameState* state) 
+		if (villageEffect(currentPlayer, handPos, state) < 0)
+		{
+			return -1;
+		}
+		else
+		{
+			return 0;
+		}
 		
     case baron:
       state->numBuys++;//Increase buys by 1!
