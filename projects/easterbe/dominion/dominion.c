@@ -696,6 +696,7 @@ int adventurerEffect(int currentPlayer, int handPos, struct gameState* state)
 	return 0;
 }
 
+//!!!!!!!!!!!!!!!! this compiles and runs in playdom !!!!!!!!!!!!!!!!!!!
 //REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: village)
 //(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
 int villageEffect(int currentPlayer, int handPos, struct gameState* state)
@@ -710,6 +711,53 @@ int villageEffect(int currentPlayer, int handPos, struct gameState* state)
 	discardCard(handPos, currentPlayer, state, 0);
 	return 0;
 }
+
+//!!!!!!!!!!!!!!!! this compiles and runs in playdom !!!!!!!!!!!!!!!!!!!
+//REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: village)
+//(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
+int councilRoomEffect(int currentPlayer, int handPos, struct gameState* state)
+{
+	//+4 Cards
+	int i;
+	for (i = 0; i < 5; i++)
+	{
+		drawCard(currentPlayer, state);
+	}
+
+	//+1 Buy
+	state->numBuys++;
+
+	//Each other player draws a card
+	for (i = 0; i < state->numPlayers; i++)
+	{
+		if (i != currentPlayer)
+		{
+			drawCard(i, state);
+		}
+	}
+
+	//put played card in played card pile
+	discardCard(handPos, currentPlayer, state, 0);
+
+	return 0;
+}
+
+//REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: village)
+//(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
+int greatHallEffect(int currentPlayer, int handPos, struct gameState* state)
+{
+	//+1 Card
+	drawCard(currentPlayer, state);
+
+	//+1 Actions
+	state->numActions++;
+
+	//discard card from hand
+	discardCard(handPos, currentPlayer, state, 1);
+	return 0;
+}
+
+
 
 
 
@@ -749,27 +797,15 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 
 	case council_room:
 		//+4 Cards
-		for (i = 0; i < 4; i++)
+		//refactored: call councilRoomEffect(int currentPlayer, int handPos, struct gameState* state)
+		if (councilRoomEffect(currentPlayer, handPos, state) < 0)
 		{
-			drawCard(currentPlayer, state);
+			return -1;
 		}
-
-		//+1 Buy
-		state->numBuys++;
-
-		//Each other player draws a card
-		for (i = 0; i < state->numPlayers; i++)
+		else
 		{
-			if (i != currentPlayer)
-			{
-				drawCard(i, state);
-			}
+			return 0;
 		}
-
-		//put played card in played card pile
-		discardCard(handPos, currentPlayer, state, 0);
-
-		return 0;
 			
     case feast:
       //gain card with cost up to 5
@@ -964,14 +1000,16 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 		
     case great_hall:
       //+1 Card
-      drawCard(currentPlayer, state);
-			
-      //+1 Actions
-      state->numActions++;
-			
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-      return 0;
+	  //+1 Actions
+	  //refactored: call greatHallEffect(int currentPlayer, int handPos, struct gameState* state)
+		if (greatHallEffect(currentPlayer, handPos, state) < 0)
+		{
+			return -1;
+		}
+		else
+		{
+			return 0;
+		}
 		
     case minion:
       //+1 action
