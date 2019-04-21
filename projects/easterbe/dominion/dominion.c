@@ -646,7 +646,6 @@ int getCost(int cardNumber)
   return -1;
 }
 
-//!!!!!!!!!!!!!!!! this compiles and runs in playdom !!!!!!!!!!!!!!!!!!!
 //REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: smithy)
 //(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
 int smithyEffect(int currentPlayer, int handPos, struct gameState* state)
@@ -664,7 +663,6 @@ int smithyEffect(int currentPlayer, int handPos, struct gameState* state)
 	return 0;
 }
 
-//!!!!!!!!!!!!!!!! this compiles and runs in playdom !!!!!!!!!!!!!!!!!!!
 //REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: adventurer)
 //(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
 int adventurerEffect(int currentPlayer, int handPos, struct gameState* state)
@@ -696,7 +694,6 @@ int adventurerEffect(int currentPlayer, int handPos, struct gameState* state)
 	return 0;
 }
 
-//!!!!!!!!!!!!!!!! this compiles and runs in playdom !!!!!!!!!!!!!!!!!!!
 //REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: village)
 //(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
 int villageEffect(int currentPlayer, int handPos, struct gameState* state)
@@ -712,7 +709,6 @@ int villageEffect(int currentPlayer, int handPos, struct gameState* state)
 	return 0;
 }
 
-//!!!!!!!!!!!!!!!! this compiles and runs in playdom !!!!!!!!!!!!!!!!!!!
 //REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: village)
 //(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
 int councilRoomEffect(int currentPlayer, int handPos, struct gameState* state)
@@ -756,9 +752,6 @@ int greatHallEffect(int currentPlayer, int handPos, struct gameState* state)
 	discardCard(handPos, currentPlayer, state, 1);
 	return 0;
 }
-
-
-
 
 
 int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus)
