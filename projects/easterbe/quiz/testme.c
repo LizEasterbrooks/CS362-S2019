@@ -3,27 +3,21 @@
 #include<stdlib.h>
 #include<time.h>
 
-//To avoid the problem of not being able to free a dynamically allocated string inside of the calling function...
-//Why is not being able to free a dynamically allocated string a problem? Well, first of all, if I dynamically
-//allocate space for the string each time inputString is called inside testme, but testme never calls free on the
+#define MAX_STR 5
+
+//To avoid the problem of not being able to free a dynamically allocated string inside of testme()...
+char randomStr[1000];
+// Why is not being able to free a dynamically allocated string a problem? Well, first of all, if I dynamically
+// allocate space for the string each time inputString is called inside testme, but testme never calls free on the
 // string, then after running the loop many times (looping "infinitely") eventually we would run out of memory.
 // So I either change testme to free the damn string, otherwise the string needs to be a static variable... 
 // the only way that can occur is to have a global variable. Yuck!
-#define MAX_STR 5
 
-char randomStr[1000];
 
 char inputChar()
 {
-    // DONE --> NEEDS TO COMPILE AND RUN BEFORE CONSIDER "complete"
-	//generate a random character and return it
-	//This is pretty straightforward and probably a piece of cake.
-	//This *probably* won't change very much after we start messing around with it.
-	//We have the freedom to pick which characters we get to iterate through, so... we'll see if that makes this easier
-	//or harder to satisfy the conditions
-	//Do I not need to call srand here since it is already being called in main?
+
 	char randChar;
-	//generate the randomChar here
 	//generate a number in a given range: number = (rand() % (<maxvalue> - <minvalue> + 1) + <minvalue>) --> straight from CS 161/162 textbook
 	randChar = (rand() % (125 - 32 + 1) + 32);
     return randChar;
@@ -31,25 +25,15 @@ char inputChar()
 
 char *inputString()
 {
-    // TODO: rewrite this function
-	//I need to generate several random letters, insert them into a char* and send the pointer back
-	//I guess that needs to be dynamically allocated then...? (Am I allowed to add a line to free in testme???)
-	//For the first attempt I will limit the number of characters to five plus the null terminator.
-	//I'll memset the whole thing with null terminators then for loop to generate lowercase chars for five indices
-	//that should make it fairly likely for the error and exit state to occur in testme, and then after we acheive that
-	//(or in five minutes) we can check the amount of coverage we got and go from there.
-	//If we don't get close to 85% then we'll need to come back and make it less likely to get this "reset" string
-	//so that the tests run longer...? Oof, we'll see.
-	//This is *PROBABLY* the one we'll change the most (probably. no promises)
-	char* inputStr = randomStr; //this is stupid... but what am I supposed to do if there is no way to free dynamically allocated memory? I'd run out before the infinite loop finished!
-	//But this almost makes returning a pointer from this function retarded. I could just use the stupid global variable in the stupid testme...rawr...
+	char* inputStr = randomStr;
 	memset(inputStr, '\0', sizeof(char) * 1000);
-	//generate random values for five characters of the string
 	int i;
-	for (i = 0; i < MAX_STR; i++)
+	//generate random values for five characters of the string
+	for (i = 0; i < MAX_STR; i++) 
 	{
 		inputStr[i] = (rand() % (116 - 101 + 1) + 101);
 	} 
+	//if desired: make the length of the string variable by generating a random number (between 1-999) to bind the loop
 	return inputStr;
 }
 
