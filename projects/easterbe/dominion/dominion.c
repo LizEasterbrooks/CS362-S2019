@@ -228,6 +228,9 @@ int shuffle(int player, struct gameState *state) {
   return 0;
 }
 
+
+//Liz asks a QUESTION: why does playCard return anything? The int code isn't used in playdom.c so...?
+//...shouldn't playdom.c be error checking the status of playCard? If playCard fails, it should also fail... yes?
 int playCard(int handPos, int choice1, int choice2, int choice3, struct gameState *state) 
 {	
   int card;
@@ -346,6 +349,15 @@ int fullDeckCount(int player, int card, struct gameState *state) {
 int whoseTurn(struct gameState *state) {
   return state->whoseTurn;
 }
+
+//LIZ ASKS A QUESTION: So... in the rules of the real Dominion, cards which are in your hand and cards you played but did not trash
+//all go into your discard pile at the end of a turn. So why am I only seeing the hand at the end of the turn going into discards here?
+//What is the point of having the played card deck if all it does is sit there? Is that an error or are played cards never allowed to
+//re-enter circulation in your deck in this version of the game? (If so then why bother with the distinction of trash vs not trash?)
+//(Try ctrl-f "playedCard" and you'll see that at no place does that played pile ever re-enter circulation)
+
+//ALSO, technically in the rules for Dominion, the player draws their new hand at the end of their turn, not after the
+//next person finishes their turn, as is represented by the code below.
 
 int endTurn(struct gameState *state) {
   int k;
@@ -643,6 +655,114 @@ int getCost(int cardNumber)
   return -1;
 }
 
+//REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: smithy)
+//(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
+int smithyEffect(int currentPlayer, int handPos, struct gameState* state)
+{
+	//+3 Card
+	int i;
+	for (i = 1; i < 3; i++)
+	{
+		drawCard(currentPlayer, state);
+	}
+
+	//discard card from hand
+	discardCard(handPos, currentPlayer, state, 0);
+
+	return 0;
+}
+
+//REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: adventurer)
+//(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
+int adventurerEffect(int currentPlayer, int handPos, struct gameState* state)
+{
+	//(refactor: declare (int)cardDrawn, (int) drawnTreasure, (int) temphand[MAX_HAND], (int) z [for temp hand] in this context)
+	int cardDrawn;
+	int drawntreasure = 0;
+	int z = 0; //counter for temp hand;
+	int temphand[MAX_HAND];
+
+	while (drawntreasure<2) {
+		if (state->deckCount[currentPlayer] <1) {//if the deck is empty we need to shuffle discard and add to deck
+			shuffle(currentPlayer, state);
+		}
+		drawCard(currentPlayer, state);
+		cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer] - 1];//top card of hand is most recently drawn card.
+		if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
+			drawntreasure++;
+		else {
+			temphand[z] = cardDrawn;
+			state->handCount[currentPlayer]--; //this should just remove the top card (the most recently drawn one).
+			z++;
+		}
+	}
+	while (z - 1 > 0) {
+		state->discard[currentPlayer][state->discardCount[currentPlayer]++] = temphand[z - 1]; // discard all cards in play that have been drawn
+		z = z - 1;
+	}
+	return 0;
+}
+
+//REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: village)
+//(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
+int villageEffect(int currentPlayer, int handPos, struct gameState* state)
+{
+	//+1 Card
+	drawCard(currentPlayer, state);
+
+	//+2 Actions
+	state->numActions = state->numActions + 2;
+
+	//discard played card from hand
+	discardCard(handPos, currentPlayer, state, 0);
+	return 0;
+}
+
+//REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: village)
+//(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
+int councilRoomEffect(int currentPlayer, int handPos, struct gameState* state)
+{
+	//+4 Cards
+	int i;
+	for (i = 0; i < 5; i++)
+	{
+		drawCard(currentPlayer, state);
+	}
+
+	//+1 Buy
+	state->numBuys++;
+
+	//Each other player draws a card
+	for (i = 0; i < state->numPlayers; i++)
+	{
+		if (i != currentPlayer)
+		{
+			drawCard(i, state);
+		}
+	}
+
+	//put played card in played card pile
+	discardCard(handPos, currentPlayer, state, 0);
+
+	return 0;
+}
+
+//REFACTORED IN ASSIGMENT 2; called in cardEffect (switch: case: greatHall)
+//(Bug may have been added in ASSIGNMENT 2; see assigment 2 documentation)
+int greatHallEffect(int currentPlayer, int handPos, struct gameState* state)
+{
+	//+1 Card
+	drawCard(currentPlayer, state);
+
+	//+1 Actions
+	state->numActions++;
+
+	//discard card from hand
+	discardCard(handPos, currentPlayer, state, 1);
+	return 0;
+}
+
+
 int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus)
 {
   int i;
@@ -655,9 +775,9 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 
   int tributeRevealedCards[2] = {-1, -1};
   int temphand[MAX_HAND];// moved above the if statement
-  int drawntreasure=0;
-  int cardDrawn;
-  int z = 0;// this is the counter for the temp hand
+  //int drawntreasure=0;										//ONLY USED IN adventurer; RETAINED after refactoring, but inactive to avoid compiler warnings
+  //int cardDrawn;											//ONLY USED IN adventurer; RETAINED after refactoring, but inactive to avoid compiler warnings
+  //int z = 0;// this is the counter for the temp hand		//ONLY USED IN adventurer; RETAINED after refactoring, but inactive to avoid compiler warnings
   if (nextPlayer > (state->numPlayers - 1)){
     nextPlayer = 0;
   }
@@ -667,49 +787,27 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
   switch( card ) 
     {
     case adventurer:
-      while(drawntreasure<2){
-	if (state->deckCount[currentPlayer] <1){//if the deck is empty we need to shuffle discard and add to deck
-	  shuffle(currentPlayer, state);
-	}
-	drawCard(currentPlayer, state);
-	cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]-1];//top card of hand is most recently drawn card.
-	if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
-	  drawntreasure++;
-	else{
-	  temphand[z]=cardDrawn;
-	  state->handCount[currentPlayer]--; //this should just remove the top card (the most recently drawn one).
-	  z++;
-	}
-      }
-      while(z-1>=0){
-	state->discard[currentPlayer][state->discardCount[currentPlayer]++]=temphand[z-1]; // discard all cards in play that have been drawn
-	z=z-1;
-      }
-      return 0;
-			
-    case council_room:
-      //+4 Cards
-      for (i = 0; i < 4; i++)
-	{
-	  drawCard(currentPlayer, state);
-	}
-			
-      //+1 Buy
-      state->numBuys++;
-			
-      //Each other player draws a card
-      for (i = 0; i < state->numPlayers; i++)
-	{
-	  if ( i != currentPlayer )
-	    {
-	      drawCard(i, state);
-	    }
-	}
-			
-      //put played card in played card pile
-      discardCard(handPos, currentPlayer, state, 0);
-			
-      return 0;
+		//refactored: call adventurerEffect(int currentPlayer, int handPos, struct gameState* state)
+		if (adventurerEffect(currentPlayer, handPos, state) < 0)
+		{
+			return -1;
+		}
+		else
+		{
+			return 0;
+		}
+
+	case council_room:
+		//+4 Cards
+		//refactored: call councilRoomEffect(int currentPlayer, int handPos, struct gameState* state)
+		if (councilRoomEffect(currentPlayer, handPos, state) < 0)
+		{
+			return -1;
+		}
+		else
+		{
+			return 0;
+		}
 			
     case feast:
       //gain card with cost up to 5
@@ -829,26 +927,27 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       return 0;
 		
     case smithy:
-      //+3 Cards
-      for (i = 0; i < 3; i++)
-	{
-	  drawCard(currentPlayer, state);
-	}
-			
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-      return 0;
-		
+		//refactored: call smithyEffect(int currentPlayer, int handPos, struct gameState* state)
+		if (smithyEffect(currentPlayer, handPos, state) < 0)
+		{
+			return -1;
+		}
+		else
+		{
+			return 0;
+		}
+	
     case village:
       //+1 Card
-      drawCard(currentPlayer, state);
-			
-      //+2 Actions
-      state->numActions = state->numActions + 2;
-			
-      //discard played card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-      return 0;
+	  //refactored: call villageEffect(int currentPlayer, int handPos, struct gameState* state) 
+		if (villageEffect(currentPlayer, handPos, state) < 0)
+		{
+			return -1;
+		}
+		else
+		{
+			return 0;
+		}
 		
     case baron:
       state->numBuys++;//Increase buys by 1!
@@ -903,14 +1002,16 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 		
     case great_hall:
       //+1 Card
-      drawCard(currentPlayer, state);
-			
-      //+1 Actions
-      state->numActions++;
-			
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-      return 0;
+	  //+1 Actions
+	  //refactored: call greatHallEffect(int currentPlayer, int handPos, struct gameState* state)
+		if (greatHallEffect(currentPlayer, handPos, state) < 0)
+		{
+			return -1;
+		}
+		else
+		{
+			return 0;
+		}
 		
     case minion:
       //+1 action
@@ -1216,13 +1317,24 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 	  return 1;
 	}
 			
-      //no second treasure_map found in hand
+      //no second treasure_map found in hand //Liz asks a QUESTION: what???? this is outside the switch statement. How????
       return -1;
     }
 	
   return -1;
 }
 
+
+//LIZ ASKS A QUESTION: So... if the cards that are "discarded" go into the played pile here...
+//...then how do any cards get into the discard pile, which would be shuffled back into the
+//deck when the deck run out??? Why is there a played pile and a discard pile?
+//Why is there a played pile and a discard pile anyway? That isn't in the rules of the card game...?
+//PARTIAL ANSWER: Because "discardCard" is for when a card is played and they don't automatically
+//go in to the discard pile; they wait until the end of the turn (represente by endTurn function)
+//at which point all cards in the player's hand and in the played pile are supposed to go to discards.
+//HOWEVER, in the code provided to us, NOTHING HAPPENS TO THE PLAYEDCARDS PILE. I'm not sure if this
+//is a design flaw or an intentional change to the game. I'm thinking an error, otherwise, why
+//make a distinction between "trash" and "not trash"?
 int discardCard(int handPos, int currentPlayer, struct gameState *state, int trashFlag)
 {
 	
