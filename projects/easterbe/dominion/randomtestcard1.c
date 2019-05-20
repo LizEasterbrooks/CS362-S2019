@@ -56,7 +56,7 @@ void printState(struct gameState* previousState, struct gameState* currentState,
 		//deck + discards count failed (discard count WILL NOT change after cardEffect unless deck runs out during draws)
 		deckDiscardBef = (previousState->deckCount[previousState->whoseTurn]) + (previousState->discardCount[previousState->whoseTurn]);
 		deckDiscardAft = (currentState->deckCount[currentState->whoseTurn]) + (currentState->discardCount[currentState->whoseTurn]);
-		printf("FAIL: non-hand card count:\n");
+		printf("FAIL: deck/discard card count:\n");
 		printf("Explanation: deckCount + discardCount before call should be three more than deckCount + discardCount after\n");
 		printf("Before: deckCount (%d) + discardCount(%d) = %d\n", previousState->deckCount[previousState->whoseTurn], previousState->discardCount[previousState->whoseTurn], deckDiscardBef);
 		printf("After: --> expect three less than before: deckCount (%d) + discardCount(%d) = %d\n", currentState->deckCount[currentState->whoseTurn], currentState->discardCount[currentState->whoseTurn], deckDiscardAft);
@@ -136,24 +136,27 @@ void randomSmithyTest()
 		//THEN: call cardEffect for smithy, passing one of the game states, then compare previous state to state after call
 		if (cardEffect(card, choice1, choice2, choice3, &randGame, handPos, &bonus) >= 0)
 		{
-			printf("FAILURE IN TEST #%d:\n", i);
 			//The number of cards in hand should be + 3 - 1 (because played card is discarded)
 			if (((rGameCpy.handCount[rGameCpy.whoseTurn] + 2) != randGame.handCount[rGameCpy.whoseTurn])) {
+				printf("FAILURE IN TEST #%d: ", (i + 1));
 				printState(&rGameCpy, &randGame, 2);
 			}
 			//The number of cards in the played pile (NOT DISCARDS) should be +1
 			if (((rGameCpy.playedCardCount + 1) != randGame.playedCardCount)) {
+				printf("FAILURE IN TEST #%d: ", (i + 1));
 				printState(&rGameCpy, &randGame, 3);
 			}
 			//The number of cards in deck plus discards should be three less than previous deck + discards
 			//(discard count WILL NOT CHANGE after calling cardEffect unless deck runs out during card draws;
 			//thus the sum of the two should reflect the number of the players cards not held in their hand)
 			if ((((rGameCpy.deckCount[rGameCpy.whoseTurn]) + (rGameCpy.discardCount[rGameCpy.whoseTurn]) - 3) != ((randGame.deckCount[rGameCpy.whoseTurn]) + (randGame.discardCount[rGameCpy.whoseTurn])))) {
+				printf("FAILURE IN TEST #%d: ", (i + 1));
 				printState(&rGameCpy, &randGame, 4);
 			}
 		}
 		else 
 		{
+			printf("FAILURE IN TEST #%d: ", (i + 1));
 			printf("FAIL: cardEffect returned with error (-1)");
 			printState(&rGameCpy, &randGame, 1);
 		}

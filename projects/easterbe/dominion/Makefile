@@ -41,6 +41,14 @@ randomtestresults: randomtestcard1.c dominion.o
 	./randomtestcard1 &> randomtestresults.out
 	gcov -f -b dominion.c >> randomtestresults.out
 	cat dominion.c.gcov >> randomtestresults.out
+	gcc  -o randomtestcard2 -g  randomtestcard2.c dominion.o rngs.o $(CFLAGS)
+	./randomtestcard2 >> randomtestresults.out
+	gcov -f -b dominion.c >> randomtestresults.out
+	cat dominion.c.gcov >> randomtestresults.out
+#	gcc  -o randomtestcard3 -g  randomtestcard3.c dominion.o rngs.o $(CFLAGS)			#randomtestcard3 NOT COMPLETE
+#	./randomtestcard3 >> randomtestresults.out
+#	gcov -f -b dominion.c >> randomtestresults.out
+#	cat dominion.c.gcov >> randomtestresults.out
 
 
 player: player.c interface.o
@@ -49,4 +57,4 @@ player: player.c interface.o
 all: playdom player 
 
 clean:
-	rm -f *.o playdom.exe playdom player player.exe  *.gcov *.gcda *.gcno *.so *.out testDrawCard testDrawCard.exe
+	rm -f *.o playdom.exe playdom player player.exe  *.gcov *.gcda *.gcno *.so *.out testDrawCard testDrawCard.exe randomtestcard1 randomtestcard2
