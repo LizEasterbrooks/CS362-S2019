@@ -13,10 +13,6 @@ playdom: dominion.o playdom.c
 testDrawCard: testDrawCard.c dominion.o rngs.o
 	gcc  -o testDrawCard -g  testDrawCard.c dominion.o rngs.o $(CFLAGS)
 
-#randomtestcard1: randomtestcard1.c dominion.o
-#	gcc  -o randomtestcard1 -g  randomtestcard1.c dominion.o rngs.o $(CFLAGS)
-
-
 #########
 
 badTestDrawCard: badTestDrawCard.c dominion.o rngs.o
@@ -45,10 +41,11 @@ randomtestresults: randomtestcard1.c dominion.o
 	./randomtestcard2 >> randomtestresults.out
 	gcov -f -b dominion.c >> randomtestresults.out
 	cat dominion.c.gcov >> randomtestresults.out
-#	gcc  -o randomtestcard3 -g  randomtestcard3.c dominion.o rngs.o $(CFLAGS)			#randomtestcard3 NOT COMPLETE
-#	./randomtestcard3 >> randomtestresults.out
-#	gcov -f -b dominion.c >> randomtestresults.out
-#	cat dominion.c.gcov >> randomtestresults.out
+###### !!! randomtestcard3 NOT COMPLETE - WILL COMPILE, BUT WILL NOT RUN TESTS !!! #####
+	gcc  -o randomtestcard3 -g  randomtestcard3.c dominion.o rngs.o $(CFLAGS)			
+	./randomtestcard3 >> randomtestresults.out
+	gcov -f -b dominion.c >> randomtestresults.out
+	cat dominion.c.gcov >> randomtestresults.out
 
 
 player: player.c interface.o
@@ -57,4 +54,4 @@ player: player.c interface.o
 all: playdom player 
 
 clean:
-	rm -f *.o playdom.exe playdom player player.exe  *.gcov *.gcda *.gcno *.so *.out testDrawCard testDrawCard.exe randomtestcard1 randomtestcard2
+	rm -f *.o playdom.exe playdom player player.exe  *.gcov *.gcda *.gcno *.so *.out testDrawCard testDrawCard.exe randomtestcard1 randomtestcard2 randomtestcard3

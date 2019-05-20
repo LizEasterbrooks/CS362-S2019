@@ -53,7 +53,7 @@ void printState(struct gameState* previousState, struct gameState* currentState,
 		printf("FAIL: playedCardCount: ");
 		printf("playedCardCount: %d/--> expect + 1: %d\n", previousState->playedCardCount, currentState->playedCardCount);
 	}
-	else //fail case 4
+	else if (failCase == 4)
 	{
 		//deck + discards count failed (discard count WILL NOT change after cardEffect unless deck runs out during draws)
 		deckDiscardBef = (previousState->deckCount[previousState->whoseTurn]) + (previousState->discardCount[previousState->whoseTurn]);
@@ -62,6 +62,11 @@ void printState(struct gameState* previousState, struct gameState* currentState,
 		printf("Explanation: deckCount + discardCount before call should be four more than deckCount + discardCount after\n");
 		printf("Before: deckCount (%d) + discardCount(%d) = %d\n", previousState->deckCount[previousState->whoseTurn], previousState->discardCount[previousState->whoseTurn], deckDiscardBef);
 		printf("After: --> expect four less than before: deckCount (%d) + discardCount(%d) = %d\n", currentState->deckCount[currentState->whoseTurn], currentState->discardCount[currentState->whoseTurn], deckDiscardAft);
+	}
+	else //fail case 5
+	{
+		printf("FAIL: numBuys: ");
+		printf("numBuys: %d/--> expect + 1: %d\n", previousState->numBuys, currentState->numBuys);
 	}
 }
 
@@ -136,6 +141,12 @@ void randomCouncilRoomTest()
 			if ((((rGameCpy.deckCount[rGameCpy.whoseTurn]) + (rGameCpy.discardCount[rGameCpy.whoseTurn]) - 4) != ((randGame.deckCount[rGameCpy.whoseTurn]) + (randGame.discardCount[rGameCpy.whoseTurn])))) {
 				printf("FAILURE IN TEST #%d: ", (i + 1));
 				printState(&rGameCpy, &randGame, 4);
+			}
+			//the number of buys available to the player should be +1 than previous
+			if ((rGameCpy.numBuys + 1) != randGame.numBuys)
+			{
+				printf("FAILURE IN TEST #%d: ", (i + 1));
+				printState(&rGameCpy, &randGame, 5);
 			}
 			//for loop to check that each non-player has the right number of cards in their hand (+1)
 			for (p = 0; p < randGame.numPlayers; p++)
